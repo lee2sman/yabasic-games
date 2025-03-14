@@ -1,0 +1,28 @@
+#!/usr/bin/yabasic
+
+clear screen
+total = 0
+print "PIG. Try to get a high score. Roll as many times as you want. You lose when you roll 0. How high can you get? "
+print
+repeat
+
+  print "Press any key to roll or 's' to stop."
+  a$=inkey$
+  sleep 1
+
+  dice=1+int(ran()*6)
+  print "Rolled: ",dice
+  total = total + dice
+  
+  if dice==1 then
+    total=0
+    print
+    print "Pig!"
+    print
+  endif
+
+  print "Total: ",str$(total)
+  print
+
+until a$=="s"
+end
