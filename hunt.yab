@@ -1,0 +1,52 @@
+REM A custom shoot function for The Oregon Trail. 
+REM Code from lee2sman 2025 
+REM Adapted from the original Oregon program from 01/01/78
+
+REM ORIGINAL PROGRAMMING BY BILL HEINEMANN - 1971
+REM SUPPORT RESEARCH AND MATERIALS BY DON RAWITSCH,
+REM      MINNESOTA EDUCATIONAL COMPUTING CONSORTIUM STAFF
+
+REM ORIGINAL CODE
+710 PRINT "HOW GOOD A SHOT ARE YOU WITH YOUR RIFLE?"
+720 PRINT "  (1) ACE MARKSMAN,  (2) GOOD SHOT,  (3) FAIR TO MIDDLIN'"
+730 PRINT "         (4) NEED MORE PRACTICE,  (5) SHAKY KNEES"
+740 PRINT "ENTER ONE OF THE ABOVE -- THE BETTER YOU CLAIM YOU ARE, THE"
+750 PRINT "FASTER YOU'LL HAVE TO BE WITH YOUR GUN TO BE SUCCESSFUL."
+760 INPUT D9
+770 IF D9>5 THEN GOTO 790 ENDIF
+780 GOTO 810
+790 D9=0
+810 REM TO NEW CODE
+
+REM MORE ORIGINAL CODE
+6140 DIM S$(5)
+6150 S$(1)="BANG"
+6160 S$(2)="BLAM"
+6170 S$(3)="POW"
+6180 S$(4)="WHAM"
+6190 S6=INT(RAN(4)+1)
+REM end from Original code
+
+REM My custom code follows
+amt=round(ran(3))+1
+REM wait some amount of time
+sleep amt
+start = peek("millisrunning")
+6200 PRINT "TYPE ", S$(S6)
+input challenge$
+print "POW!! "
+REM Grab time at end
+stop = peek("millisrunning")
+REM if time is less than a second, success
+if challenge$==S$(S6) THEN
+  PRINT "Word typed correctly"
+  PRINT "It took you ", stop-start, " millis"
+  PRINT "To succeed, you must do it in ",550*D9," millis"
+    if start+(550*D9)>stop then
+      print "A hit!"
+    else
+      print "A miss!"
+    endif
+  else
+    Print "Misfire! (Typed incorrectly)"
+endif

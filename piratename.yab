@@ -1,0 +1,4 @@
+input "What's your name? " name$
+print "Your pirate name is:"
+sleep 1
+print "Pirate ",name$

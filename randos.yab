@@ -1,0 +1,7 @@
+#!/usr/bin/yabasic
+
+print "Returns numbers from 1 to 10"
+do
+  print (1+int(ran()*10))
+  sleep 1
+loop

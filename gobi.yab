@@ -1,0 +1,264 @@
+#!/usr/bin/yabasic
+
+progress = 0
+goal = 800
+water = 20
+food = 20
+camelHealth = 5
+pSearch = false REM previously searched
+
+dim scenes$(8)
+scenes$(1) = "oasis"
+scenes$(2) = "nomads"
+scenes$(3) = "ruins"
+scenes$(4) = "desert"
+scenes$(5) = "desert"
+scenes$(6) = "desert"
+scenes$(7) = "desert"
+scenes$(8) = "desert"
+
+dim options$(5)
+options$(1) = "(A)dvance"
+options$(2) = "(D)ash"
+options$(3) = "(R)est"
+options$(4) = "(S)earch"
+options$(5) = "(?) Help"
+
+sub event ()
+  scene$=scenes$(int(ran(arraysize(scenes$(),1)))+1)
+  switch scene$
+    case "oasis":
+      oasis()
+      break
+    case "nomads":
+      nomads()
+      break
+    case "ruins":
+      ruins()
+      break
+    case "desert":
+      desert()
+      break
+    end switch 
+end sub
+
+sub oasis()
+  Print "An oasis."
+  sleep 0.3 
+  print "."
+  sleep 0.3 
+  print "."
+  sleep 0.3 
+  REM 15% chance of mirage
+  if ran(100)>15 then
+    if camelHealth < 5 then camelHealth = 5 endif
+    water = 20
+    food = food + int(ran(5)) + 4
+    if food>24 then food=24 endif
+    print "You refill your water and add to your provisions and rest your camel."
+  else
+    print "The oasis you spotted turns out to be a mirage."
+  endif
+
+end sub
+
+sub nomads()
+  print "You spot nomads ahead."
+  sleep 0.3
+  print "."
+  sleep 0.3
+  print "."
+  sleep 0.3
+  chance=ran(100)
+  if chance<3 then
+    print "The nomads attack you to get your supplies. They steal all your food and water."
+  elseif chance<30 then
+    print "The nomads attack and steal some of your food and water."
+    food = food -  int(ran(3)) - 2
+    water = water - int(ran(3)) - 2
+  elseif chance < 50 then
+    print "This looks like a rough group. You steer wide around their party, hoping they will ignore you. "
+  else 
+    print "The nomads are a friendly group. You travel together for a bit and they give you some food and drink. "
+    water = water + int(ran(6))+2
+    if water>20 then water = 20 endif
+    food = food + int(ran(6))+2
+    if food>24 then food = 24 endif
+  endif
+end sub
+
+sub ruins()
+  print "You come across some ruins."
+end sub
+
+sub desert()
+  print "You wander further into the desert."
+end sub
+
+REM INTRO
+sub intro()
+  clear screen
+  print "Welcome to Gobi"
+  print "You are a trader, having traveled far and wide along the silk road to buy and sell wares. Now far from home as the season starts to turn you begin the long journey back home, through the Gobi desert."
+  print
+  print "You'll need your supplies to hold out, and a little luck, to make it 800km across the desert."
+  print
+  print "Hint: Type an action or ? for help"
+end sub
+
+sub help()
+  print
+  print "Gobi is a minimal desert adventure game in the lineage of early strategy and resource management games like The Oregon Trail. It is 800km across the desert. Avoid trouble. Collect supplies. Good luck! Your possible actions are: "
+  print
+  for a=1 to arraySize(options$(),1)
+    print " "+options$(a)
+  next
+  print
+end sub
+
+sub win()
+  print "You crest a dune and see the outskirts of a city with hundreds of tents, market stalls and houses. In the distance is a great body of water. Your home is down below. You can't wait to get home with your supplies and fortune. Your friends and family will certainly be pleased to see you."
+  print 
+  print "Press any key to end"
+  inkey$
+  exit
+end sub
+
+sub ahead()
+  pSearch = false
+  progress=progress+int(ran(8))+3
+  food=food-int(ran(3)+1)
+  water=water-int(ran(2)+1)
+end sub
+
+sub advance()
+  ahead()
+  event()
+end sub
+
+sub dash()
+  pSearch = false
+  progress=progress+int(ran(24))+9
+  print "You rush ahead, pushing your camel to its limit. It injures the camel a bit."
+  camelHealth=camelHealth-1
+  food=food-int(ran(3)+1)
+  water=water-int(ran(2)+1)
+  event()
+end sub
+
+sub rest()
+  if camelHealth<5 then camelHealth=camelHealth+1 endif
+  food=food-int(ran(2))
+  water=water-int(ran(2))
+  print "You and your camel take a much-needed rest."
+end sub
+
+sub search()
+  if pSearch == true then
+    print "You've already searched. No rock has been left unturned."
+  else
+    pSearch = true
+    chance = ran(100)
+    if scene$=="ruins" then
+      if chance<20 then  rem find food
+	food=food+int(ran(6))+2
+	if food>24 then food=24 endif
+	print "You find the remains of some leftover meal abandoned in an old firepit."
+      elseif chance<40 then rem find water
+	water=water+int(ran(6))+2
+	if water>20 then water = 20 endif
+	print "You find a canteen with some water."
+      elseif chance<55 then REM find food + water
+	food=food+int(ran(6))+2
+	if food>24 then food=24 endif
+	water=water+int(ran(6))+2
+	if water>20 then water = 20 endif
+	print "You find remnants of an old meal and a bit of water in a basin that you add to your canteen."
+      else
+	print "You search but don't find anything"
+    endif
+  else
+    if chance<23 then
+      food=food+int(ran(3))+3
+      if food>24 then food=24 endif
+      print "You search for food and find some berries that will sustain you for a while."
+    elseif chance<45 then
+      water=water+int(ran3)+2
+      if water>20 then water=20 endif
+      print "You press the bark of some saxaul bushes for a little bit of much-needed water."
+    elseif chance<54 then
+      food=food+int(ran(3))+3
+      if food>24 then food=24 endif
+      water=water+int(ran3)+2
+      if water>20 then water=20 endif
+      print "You find some cornmeal and left behind canteens that you eagerly add to your inventory."
+    else
+      print "You search but don't find anything."
+    endif
+  endif
+  endif
+end sub
+
+sub theEnd()
+  print "The high desert air dries out your body. Wild animals soon come across your corpse, reducing you to bone. Over the weeks and years your remains scatter in the wind, blown up the bluffs, another nomad lost to the desert."
+  print 
+  print "Press any key to end"
+  inkey$
+  exit
+end sub
+
+sub starve()
+  print "You succumb to starvation."
+  theEnd()
+end sub
+
+sub cruel()
+  print "Your camel is lame, unable to continue on. You start out on foot but the mission to continue is surely impossible. Within days you are exhausted, delirious and you pass out."
+  theEnd()
+end sub
+
+sub dehydrate()
+  print "You run out of water and succumb to thirst."
+  theEnd()
+end sub
+
+REM MAIN PROGRAM LOOP
+intro()
+do
+  print "Progress: ",progress," km"
+  print "Food: ",food," Water: ",water
+    print
+  print "What next? (A D R S Q ?)"
+  action$=inkey$
+  if lower$(action$)=="q" then
+    exit
+  elseif lower$(action$)=="a" then
+    advance()
+  elseif lower$(action$)=="d" then
+    dash()
+  elseif lower$(action$)=="r" then
+    rest()
+  elseif lower$(action$)=="s" then
+    search()
+  else
+    help()
+  endif
+
+  REM check win/lose conditions
+  if progress>=800 then
+    win()
+  elseif food<0 then
+    starve()
+  elseif water<0 then
+    dehydrate()
+  endif
+
+  if camelHealth<0 then
+    cruel()
+  elseif camelHealth<2 then
+    print "Your camel is lame. It needs to rest."
+  elseif camelHealth<4 then
+    print "Your camel is weak."
+  endif
+
+loop

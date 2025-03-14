@@ -1,0 +1,250 @@
+#!/usr/bin/yabasic
+
+REM ------------------ VARIABLES ------------------
+days = 0
+max_days = 30
+money = 110
+sheep = 0
+rock = 0
+logs = 0
+wheat = 0
+brick = 0
+sheep_cost = 0
+rock_cost = 0
+logs_cost = 0
+wheat_cost = 0
+brick_cost = 0
+
+REM ------------------ FUNCTIONS ------------------
+
+sub intro()
+  clear screen REM needed at game start
+  print "Welcome to Catanite, the resource hoarding game"
+  print "You start with 100 dollars"
+  print "You have ",max_days," days to amass a fortune"
+  print "Each time you travel costs 10 dollars and uses 1 day"
+  print "Good luck!"
+
+  travel()
+end sub
+
+sub buy()
+  list_prices()
+  print "Which resource would you like to buy?" 
+  print "(S)heep (R)ock (L)ogs (W)heat (B)rick"
+  repeat
+    which$=lower$(inkey$)
+  until which$=="s" or which$=="r" or which$=="l" or which$=="w" or which$=="b"
+
+  repeat
+    input "How many would you like to buy? " amt
+  until amt>=0
+  
+  switch which$
+    case "s":
+      if sheep_cost*amt<=money then
+        print "Bought ",amt," sheep"
+        money=money-(sheep_cost*amt)
+	sheep=sheep+amt
+      else
+        print "You don't have enough dough"
+      endif
+      break
+    case "r":
+      if rock_cost*amt<=money then
+        print "Bought ",amt," rock"
+        money=money-(rock_cost*amt)
+	rock=rock+amt
+      else
+        print "You don't have enough dough"
+      endif
+      break
+    case "l":
+      if logs_cost*amt<=money then
+        print "Bought ",amt," logs"
+        money=money-(logs_cost*amt)
+	logs=logs+amt
+      else
+        print "You don't have enough dough"
+      endif
+      break
+    case "w":
+      if wheat_cost*amt<=money then
+        print "Bought ",amt," wheat"
+        money=money-(wheat_cost*amt)
+	wheat=wheat+amt
+      else
+        print "You don't have enough dough"
+      endif
+      break
+    case "b":
+      if brick_cost*amt<=money then
+        print "Bought ",amt," brick"
+        money=money-(brick_cost*amt)
+	brick=brick+amt
+      else
+        print "You don't have enough dough"
+      endif
+      break
+    default: 
+      print "You made some mistake."
+    end switch
+end sub
+
+sub sell()
+  REM this is similar code to BUY above
+  list_prices()
+  print "Which resource would you like to sell?" 
+  print "(S)heep (R)ock (L)ogs (W)heat (B)rick"
+  repeat
+    which$=lower$(inkey$)
+  until which$=="s" or which$=="r" or which$=="l" or which$=="w" or which$=="b"
+
+  inventory()
+  repeat
+    input "How many would you like to sell? " amt
+  until amt>=0
+  
+  switch which$
+    case "s":
+      if sheep>=amt then
+        print "Sold ",amt," sheep"
+        money=money+(sheep_cost*amt)
+	sheep=sheep-amt
+	print "You now have ",money," dollars"
+      else
+        print "You don't have enough to sell that"
+      endif
+      break
+    case "r":
+      if rock>=amt then
+        print "Sold ",amt," rock"
+        money=money+(rock_cost*amt)
+	rock=rock-amt
+	print "You now have ",money," dollars"
+      else
+        print "You don't have enough to sell that"
+      endif
+      break
+    case "l":
+      if logs>=amt then
+        print "Sold ",amt," logs"
+        money=money+(logs_cost*amt)
+	logs=logs-amt
+	print "You now have ",money," dollars"
+      else
+        print "You don't have enough to sell that"
+      endif
+      break
+    case "w":
+      if wheat>=amt then
+        print "Sold ",amt," wheat"
+        money=money+(wheat_cost*amt)
+	wheat=wheat-amt
+	print "You now have ",money," dollars"
+      else
+        print "You don't have enough to sell that"
+      endif
+      break    
+      case "b":
+      if brick>=amt then
+        print "Sold ",amt," brick"
+        money=money+(brick_cost*amt)
+	brick=brick-amt
+	print "You now have ",money," dollars"
+      else
+        print "You don't have enough to sell that"
+      endif
+      break    
+      default: 
+        print "You made a typo"
+    end switch
+end sub
+
+sub inventory()
+  print REM prints a blank line between
+  print "You have:"
+  print money," dollars"
+  print sheep," sheep"
+  print rock," rock"
+  print logs," logs"
+  print wheat," wheat"
+  print brick," brick"
+end sub
+
+sub list_prices()
+  print REM prints a blank line between
+  print "Prices: "
+  print "Sheep ",sheep_cost
+  print "Rock ",rock_cost
+  print "Logs ",logs_cost
+  print "Wheat ",wheat_cost
+  print "Brick ",brick_cost
+end sub
+
+sub results()
+   if sheep>0 then money=money+(sheep*sheep_cost) endif
+   if rock>0 then money=money+(rock*rock_cost) endif
+   if logs>0 then money=money+(logs*logs_cost) endif
+   if wheat>0 then money=money+(wheat*wheat_cost) endif
+   if brick>0 then money=money+(brick*brick_cost) endif
+   print "Congratulations, you have amassed a fortune of ",money
+end sub
+
+sub travel()
+  if money>=10 then
+    REM every time you travel, advance one day
+    days = days + 1
+    print
+    print "IT IS DAY NUMBER ",days
+    print
+    REM it costs 10 dollars to travel
+    money = money - 10
+    print "You have ",money," dollars"
+
+    REM every time you travel, prices change
+    REM pick new prices, convert to integers
+    sheep_cost = int(20 + ran(15))
+    rock_cost = int(30 + ran(20))
+    logs_cost = int(10 + ran(10))
+    wheat_cost = int(20 + ran(20))
+    brick_cost = int(10 + ran(10))
+
+    print "You traveled to a new land"
+    list_prices()
+    inventory()
+  else
+    print "You don't have enough money to travel."
+  endif
+end sub
+
+REM ----------------- GAME START -------------------
+intro()
+
+REM ------------------ GAME LOOP -------------------
+do
+  print "? (I)nventory (P)rices (B)uy (S)ell (T)ravel (Q)uit"
+
+  action$=lower$(inkey$) REM get key input
+
+  if lower$(action$)=="q" then
+    end
+  elseif lower$(action$)=="b" then
+    buy()
+  elseif lower$(action$)=="s" then
+    sell()
+  elseif lower$(action$)=="t" then
+    travel()
+  elseif lower$(action$)=="i" then
+    inventory()
+  elseif lower$(action$)=="p" then
+    list_prices()
+  else
+    inventory()
+  endif
+
+  if days>max_days then
+    results()
+    end
+  endif
+loop

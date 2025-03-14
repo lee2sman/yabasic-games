@@ -1,0 +1,393 @@
+#!/usr/bin/yabasic
+
+REM -------------- global variables -----------------
+money = 200
+race_distance = 50
+total_loan = 0
+rounds_count=0
+
+sub intro()
+  clear screen
+  print "Welcome to CyberHoss, the competitive game of cyberhoss racing."
+  print
+  input "What is your name? " name$
+  name$=name$+"bot"
+  print "You are ",name$,", a sentient cyborg with a penchant for gambling."
+  print
+
+  repeat
+    print "How many rounds would you like to play? (Default: 8)"
+    inp$=inkey$
+    if inp$=="enter" then
+      rounds=8
+    else
+      rounds=val(inp$)
+    endif
+  until rounds>0
+
+  print "Okay, ",rounds," rounds."
+  print "Press any key to enter the racetrack."
+  inkey$
+
+  create_hosses()
+end sub
+
+sub create_hosses()
+  REM a list of hoss-name prefixes
+  dim prefixes$(10)
+  prefixes$(0) = "Son of"
+  prefixes$(1) = "Sir"
+  prefixes$(2) = "Junior"
+  prefixes$(3) = "The"
+  prefixes$(4) = "El"
+  prefixes$(5) = "Senor"
+  prefixes$(6) = "Machine"
+  prefixes$(7) = "Mega"
+  prefixes$(8) = "Saint"
+  prefixes$(9) = "Giga"
+
+  dim words$(10)
+  words$(0) = "Apple"
+  words$(1) = "Bravo"
+  words$(2) = "Charlie"
+  words$(3) = "Echo"
+  words$(4) = "Tango"
+  words$(5) = "Junior"
+  words$(6) = "Juliet"
+  words$(7) = "Kilo"
+  words$(8) = "2.0"
+  words$(9) = "Plus"
+
+  dim hosses$(3)
+
+  for i=1 to 3
+    name1$=prefixes$(int(ran(arraysize(prefixes$(),1))))
+    name2$=words$(int(ran(arraysize(words$(),1))))
+
+    hosses$(i) =  name1$ + " " + name2$
+  next
+
+  dim hoss_speed(3)
+  dim hoss_error(3)
+  for i=1 to 3
+    hoss_error(i)=0
+    hoss_speed(i)=ran(3)+1
+  next
+  dim payout(3)
+
+  payouts()
+  list_hosses()
+
+end sub
+
+sub payouts()
+
+  calculate_lead()
+  for i=1 to 3
+    if i==hosstip then
+      REM lead hoss payout is 1X
+      payout(i)=1
+    else
+      REM sets a min payout at least 2X
+      payout(i)=max(2,round(5-hoss_speed(i)))
+      if payout(i)>=4 then payout(i)=6 endif REM bonus
+    endif
+  next
+
+end sub
+
+sub meddle()
+     print "You enter the shady parking garage under the racetrack and spot your contact..."
+     sleep 0.2 
+     print "A shadowy figure emerges from the stairwell"
+     print "Okay, what'll it be?"
+     print 
+     print "(T)iny tack       - 10 cyberbucks"
+     print "(C)onfusion pills - 30 cyberbucks"
+     print "(B)ooster shot    - 60 cyberbucks"
+     print "(R)usting dust    - 20 cyberbucks"
+     print "(N)evermind"
+     a$=inkey$
+
+     if a$!="n" then
+       
+       repeat
+	 print "Okay, and which hoss?"
+	 for i=1 to 3
+	   print i,") ",hosses$(i)
+	 next
+	 victim=val(inkey$)
+       until victim>0 and victim<4
+
+       switch a$
+	 case "t":
+	   if money>=10 then
+             hoss_speed(victim)=hoss_speed(victim)*0.87
+             hoss_error(victim)=hoss_error(victim)+1
+	     money=money-10
+	   else
+	     print "Scram, you don't have enough dough."
+	   endif
+	   break
+	 case "c":
+	   if money>=30 then
+             hoss_speed(victim)=hoss_speed(victim)+0.4-ran(2)
+             hoss_error(victim)=hoss_error(victim)+3
+	     money=money-30
+	   else
+	     print "Scram, you don't have enough dough."
+	   endif
+	   break
+	 case "b":
+	   if money>=60 then
+	     hoss_speed(victim)=hoss_speed(victim)+0.4+ran(1.1)
+             hoss_error(victim)=hoss_error(victim)+6
+	     money=money-60
+	   else
+	     print "Scram, you don't have enough dough."
+	   endif
+	   break
+	 case "r":
+	   if money>=20 then
+	     hoss_speed(victim)=hoss_speed(victim)*0.8
+             hoss_error(victim)=hoss_error(victim)+2
+	     money=money-20
+	   else
+	     print "Scram, you don't have enough dough."
+	   endif
+	   break
+	 default:
+	   print "What are you, a wise guy? I don't know what that means. Scram. Get out of here."
+    end switch
+  endif
+  print "It's a pleasure doing business with ya. Now scram!"
+
+end sub
+
+sub calculate_lead()
+  hosstip=1
+    if hoss_speed(2)>hoss_speed(1) then
+      if hoss_speed(3)>hoss_speed(2) then
+	hosstip=3
+      else
+	hosstip=2
+      endif
+    else
+      if hoss_speed(3)>hoss_speed(1) then
+	hosstip=3
+      else
+	hosstip=1
+      endif
+    endif
+end sub
+
+sub tips()
+  print "You approach your wiseguy contact and settle in beside"
+  print "'You looking for a tip from me?'"
+  print "'I'll tell, but it'll cost ya. 20 cyberbucks'"
+  print "'You interested?' (Y/n) " 
+  interest$=inkey$
+
+  if interest$=="y" or interest$=="enter" then
+    if money>=20 then
+      print "Okay, here's the tip."
+      calculate_lead()
+          print "'I've seen each of those three warm up, and the fastest in my view is ",hosses$(hosstip),".'"
+      money=money-20
+    else  
+      print "Say, you don't got enough dough."
+    endif
+    else
+      print "'Well, maybe next time.'"
+  endif
+
+end sub
+
+sub loan_shark()
+  if loan>0 then
+    print "You here to pay down your debts? y/N"
+    yesno$=inkey$
+    if lower$(yesno$)=="y" then
+      if money>total_loan then
+        money=money-total_loan
+	total_loan=0
+      else
+        print "You don't have enough"
+      endif
+    else
+      print "Better pay me back soon!"
+    endif
+  else
+    print "Hey buddy, I'll loan you some cyberbucks, but interest is 15% per race" 
+      input "How much cyberbucks are you looking for? (0 to leave with none)? " loan
+      if loan>0 and loan<1000 then
+	money=money+loan
+	total_loan=total_loan+loan
+      else
+	print "I'm not loaning you that much!"
+      endif
+  endif
+end sub
+
+sub race()
+  total_error=hoss_error(1)+hoss_error(2)+hoss_error(3)
+  if ran(100)<total_error then
+    fine=total_error*10
+    print name$, " was caught trying to meddle with the cyberhosses and fined ",fine
+    money=money-fine
+  endif
+
+  print "And they're off!"
+
+  REM hosses start at 0
+  dim hoss_distance(3)
+  dim hoss_halfway(3)
+  for i=1 to 3
+    hoss_distance(i)=0
+    hoss_halfway(i)=false
+  next
+
+  REM race until someone breaks 100
+  repeat
+
+    for i=1 to 3
+      sleep 0.2
+
+      if ran(100)<hoss_error(i) then
+        print hosses$(i)," stumbled."
+        hoss_distance(i)=hoss_distance(i)-ran(4)
+      else
+        hoss_distance(i)=hoss_distance(i)+ran(hoss_speed(i))
+      endif
+
+      print ".";
+
+      if hoss_distance(i)>race_distance/2 and hoss_halfway(i)==false then
+        print
+        print hosses$(i)," is past the halfway point!"
+	hoss_halfway(i)=true
+      endif
+    next
+
+  until hoss_distance(1)>=race_distance or hoss_distance(2)>=race_distance or hoss_distance(3)>=race_distance
+  print
+
+end sub
+
+sub race_results()
+  REM for i=1 to 3
+    REM print hosses$(i),": ",hoss_distance(i)
+  REM next
+
+  winner=1
+  if hoss_distance(2)>hoss_distance(1) then winner=2 endif
+  if winner==2 and hoss_distance(3)>hoss_distance(2) then winner=3 endif
+  if winner==1 and hoss_distance(3)>hoss_distance(1) then winner=3 endif
+
+  print "You bet ",bet," on ",hosses$(which)
+  print "The winner is ",hosses$(winner)
+  if hosses$(winner)==hosses$(which) then
+    winnings=bet*payout(winner)
+    print "You win ",str$(winnings)," cyberbucks!"
+    money=money+winnings
+  else
+    print "You lost your ",bet," cyberbuck bet"
+    print "Better luck next time"
+  endif
+  total_loan=round(total_loan*1.15)
+  if total_loan > 0 then
+    print "Your total loan amount is ",loan
+  endif
+  if money<0 then
+    end_game()
+  endif
+
+  rounds_count=rounds_count+1
+
+end sub
+
+sub end_game()
+  print 
+  print "It's the end of the day for you at the Cyberhoss racetrack. You settle up and assess your winnings."
+  money = money - total_loan
+  if money > 0 then
+    print "You made ",money," cyberbucks. Nice job."
+  else
+    print "You're in the hole ",money," cyberbucks. You run off to the hills in disgrace to hide from your creditors. Better luck next time."
+  endif
+  end
+end sub
+
+sub list_hosses()
+  print
+  print "In the upcoming race:"
+  for i=1 to 3
+    print hosses$(i)," pays out: ",str$(payout(i)),"X"
+  next
+
+end sub
+
+sub main()
+
+  if rounds_count > rounds then
+    end_game()
+  endif
+
+  if total_loan>0 then
+    print "Loan debt: ",total_loan
+  endif
+  print "Total cyberbucks: ",money
+  print "? (E)xamine (T)ips (B)et (W)atch race (M)eddle (L)oan shark (Q)uit"
+
+  action$=lower$(inkey$)
+
+switch action$
+  case "e":
+    list_hosses()
+    break
+  case "t":
+    tips()
+    break
+  case "b":
+    list_hosses()
+    repeat
+      print "Which hoss are you betting on? (1, 2 or 3)"
+      which=val(inkey$)
+    until which<4 and which>0
+    repeat
+      print "You have ",money," cyberbucks"
+      input "How much would you like to bet? " bet
+    until bet<=money
+    print "You are betting ",bet," on "+hosses$(which)," "
+    money=money-bet
+    break
+  case "w":
+    race()
+    race_results()
+    create_hosses()
+    break
+  case "m":
+    meddle()
+    break
+  case "l":
+    loan_shark()
+    break
+  case "q":
+    exit
+    break
+  default: 
+    print "i don't know"
+end switch
+
+  REM if lower$(action$)=="q" or lower$(action$)=="quit" then
+    REM exit
+  REM fi
+
+end sub
+
+REM -----------  main program loop ------------
+
+intro()
+do
+  main()
+loop
