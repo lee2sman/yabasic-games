@@ -18,6 +18,8 @@ This repository accompanies [Programming a Basic Game](https://charlesstudy.temp
 
 ## The Games
 
+Note: The game code here is intended for those new to programming: heavy commenting, global variables, magic numbers, and verbose programming *style* abound. 
+
 ### Catanite
 
 This is a simple economic simulation game inspired by Star Trader and Dope Wars/Drug Wars.
