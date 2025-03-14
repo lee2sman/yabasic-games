@@ -16,6 +16,19 @@ This repository accompanies [Programming a Basic Game](https://charlesstudy.temp
 
 [TutorialsPoint Online Ya Basic Compiler](https://www.tutorialspoint.com/execute_basic_online.php)
 
+## MacOS
+Using the Yabasic Unix binary works on MacOS, but is a bit tricky to get working.
+
+1. Download the yabasic tar-file from [2484.de](https://2484.de/yabasic/download.html)
+  Search for "Compile the sources for Unix"
+1. Uncompress the tar file (see instructions above). You should end up with a folder like yabasic-2.91.1/
+1. Install homebrew from [https://brew.sh/](https://brew.sh/)
+1. Install libffi using homebrew: `brew install libffi`
+1. Install xquartz using homebrew: `brew install --cask xquartz`
+1. Go to your yabasic-2.91.1/ folder. Run `./runme`. This installs a `yabasic` executable.
+1. Type `./yabasic` to open the `yabasic` interpreter
+1. Alternatively, if you have `.yab` file, run `./yabasic yourfile.yab`
+
 ## The Games
 
 Note: The game code here is intended for those new to programming: heavy commenting, global variables, magic numbers, and verbose programming *style* abound. 
