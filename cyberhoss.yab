@@ -2,9 +2,10 @@
 
 REM -------------- global variables -----------------
 money = 200
+ai_money = 200
 race_distance = 50
 total_loan = 0
-rounds_count=0
+rounds_count=1
 
 sub intro()
   clear screen
@@ -14,6 +15,12 @@ sub intro()
   name$=name$+"bot"
   print "You are ",name$,", a sentient cyborg with a penchant for gambling."
   print
+
+  create_hosses()
+
+    ai_name$="Robo "+words$(int(ran(arraysize(words$(),1))))
+    print "Today you are competing against ",ai_name$,"."
+    print
 
   repeat
     print "How many rounds would you like to play? (Default: 8)"
@@ -29,7 +36,9 @@ sub intro()
   print "Press any key to enter the racetrack."
   inkey$
 
-  create_hosses()
+  list_money()
+  list_hosses() REM initial listing
+
 end sub
 
 sub create_hosses()
@@ -76,7 +85,7 @@ sub create_hosses()
   dim payout(3)
 
   payouts()
-  list_hosses()
+  REM list_hosses()
 
 end sub
 
@@ -94,6 +103,26 @@ sub payouts()
     endif
   next
 
+end sub
+
+sub ai_meddle()
+  if ran()>0.5 then 
+    if ran()>0.5 then
+       REM BOOST
+	 if ai_money>=60 then
+	   hoss_speed(ai_which)=hoss_speed(ai_which)+0.4+ran(1.1)
+	   hoss_error(ai_which)=hoss_error(ai_which)+6
+	   ai_money=ai_money-60
+	 endif
+    else
+       REM INJURE
+       if ai_money>=30 then REM injures top hoss even if ai selected it
+	 hoss_speed(hosstip)=hoss_speed(hosstip)+0.4-ran(2)
+	 hoss_error(hosstip)=hoss_error(hosstip)+3
+	 ai_money=ai_money-30
+       endif
+    endif
+  endif
 end sub
 
 sub meddle()
@@ -205,6 +234,7 @@ end sub
 
 sub loan_shark()
   if loan>0 then
+    print "Your loan is ",total_loan
     print "You here to pay down your debts? y/N"
     yesno$=inkey$
     if lower$(yesno$)=="y" then
@@ -219,8 +249,8 @@ sub loan_shark()
     endif
   else
     print "Hey buddy, I'll loan you some cyberbucks, but interest is 15% per race" 
-      input "How much cyberbucks are you looking for? (0 to leave with none)? " loan
-      if loan>0 and loan<1000 then
+      input "How much cyberbucks are you looking for? (Max of 500. 0 to leave with none)? " loan
+      if loan>=0 and loan<=500 then
 	money=money+loan
 	total_loan=total_loan+loan
       else
@@ -231,11 +261,27 @@ end sub
 
 sub race()
   total_error=hoss_error(1)+hoss_error(2)+hoss_error(3)
-  if ran(100)<total_error then
+  if ran(100)<(total_error-3) then REM magic number due to ai meddling not being independent 
     fine=total_error*10
     print name$, " was caught trying to meddle with the cyberhosses and fined ",fine
     money=money-fine
   endif
+  if ran(100)<(total_error-4) then
+    fine=int(total_error*7)
+    print ai_name$," was caught trying to meddle with the cyberhosses and fined ",fine
+    ai_money=ai_money-fine
+  endif
+
+  calculate_lead()
+  if ran()<0.5 then
+    ai_which=hosstip
+  else
+    ai_which=int(ran(3))+1
+  endif
+  ai_bet = int(ran(ai_money/2))
+
+  print "You bet ",bet," on ",hosses$(which)
+  print ai_name$," bet ",ai_bet," on ",hosses$(ai_which)
 
   print "And they're off!"
 
@@ -254,8 +300,15 @@ sub race()
       sleep 0.2
 
       if ran(100)<hoss_error(i) then
-        print hosses$(i)," stumbled."
-        hoss_distance(i)=hoss_distance(i)-ran(4)
+	REM 5% chance of running off course when stumbling
+	if ran(100)<5 then
+	  print hosses$(i), " ran off course."
+	  hoss_distance(i)=hoss_distance(i)-25
+	else
+          print hosses$(i)," stumbled."
+	  hoss_distance(i)=hoss_distance(i)-ran(4)
+	endif
+
       else
         hoss_distance(i)=hoss_distance(i)+ran(hoss_speed(i))
       endif
@@ -284,9 +337,18 @@ sub race_results()
   if winner==2 and hoss_distance(3)>hoss_distance(2) then winner=3 endif
   if winner==1 and hoss_distance(3)>hoss_distance(1) then winner=3 endif
 
-  print "You bet ",bet," on ",hosses$(which)
   print "The winner is ",hosses$(winner)
-  if hosses$(winner)==hosses$(which) then
+  print ai_name$," bet ",ai_bet," on ",hosses$(ai_which)
+  if ai_which==winner then
+    print ai_name$," won ",ai_bet*payout(winner)," cyberbucks."
+    ai_money=ai_money+(ai_bet*payout(winner))
+  else
+    print ai_name$," lost ",ai_bet," cyberbucks"
+    ai_money=ai_money-ai_bet
+  endif
+
+  print "You bet ",bet," on ",hosses$(which)
+  if winner==which then
     winnings=bet*payout(winner)
     print "You win ",str$(winnings)," cyberbucks!"
     money=money+winnings
@@ -306,32 +368,55 @@ sub race_results()
 
 end sub
 
+sub place_bet()
+    repeat
+      print "Which hoss are you betting on? (1, 2 or 3)"
+      which=val(inkey$)
+    until which<4 and which>0
+    repeat
+      input "How much would you like to bet? " bet
+    until bet<=money
+    print "You are betting ",bet," on "+hosses$(which)," "
+    money=money-bet
+
+end sub
+
 sub end_game()
   print 
   print "It's the end of the day for you at the Cyberhoss racetrack. You settle up and assess your winnings."
+  print ai_name$," made ",ai_money," cyberbucks."
   money = money - total_loan
+  print "You made ",money," cyberbucks."
   if money > 0 then
-    print "You made ",money," cyberbucks. Nice job."
+    if money > ai_money then
+      print "You have the most money and win the game. Congratulations!"
+    else
+      print ai_name$," has the most money and wins the game! Better luck next time."
+    endif
   else
     print "You're in the hole ",money," cyberbucks. You run off to the hills in disgrace to hide from your creditors. Better luck next time."
   endif
   end
 end sub
 
+sub list_money()
+  print
+  if total_loan>0 then
+    print "You borrowed ",total_loan," cyberbucks."
+  endif
+  print "You have ",money," total cyberbucks."
+end sub
+
 sub list_hosses()
   print
   print "In the upcoming race:"
   for i=1 to 3
-    print hosses$(i)," pays out: ",str$(payout(i)),"X"
+    print i,": ",hosses$(i)," pays out: ",str$(payout(i)),"X"
   next
 
 end sub
 
 sub main()
-
-  if rounds_count > rounds then
-    end_game()
-  endif
 
   if total_loan>0 then
     print "Loan debt: ",total_loan
@@ -343,31 +428,30 @@ sub main()
 
 switch action$
   case "e":
+    list_money()
     list_hosses()
     break
   case "t":
     tips()
     break
   case "b":
+    list_money()
     list_hosses()
-    repeat
-      print "Which hoss are you betting on? (1, 2 or 3)"
-      which=val(inkey$)
-    until which<4 and which>0
-    repeat
-      print "You have ",money," cyberbucks"
-      input "How much would you like to bet? " bet
-    until bet<=money
-    print "You are betting ",bet," on "+hosses$(which)," "
-    money=money-bet
+    place_bet()
     break
   case "w":
     race()
     race_results()
+    if rounds_count >= rounds then
+      end_game()
+    endif
     create_hosses()
+    list_money()
+    list_hosses()
     break
   case "m":
     meddle()
+    ai_meddle()
     break
   case "l":
     loan_shark()
