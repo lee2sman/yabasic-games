@@ -6,7 +6,9 @@ The games in this repository are primarily in the style of "economic simulation"
 
 This repository accompanies [Programming a Basic Game](https://charlesstudy.temple.edu/event/14200746) workshop for the [Electronic Faire](https://sites.temple.edu/efaire/) 2025 at Temple University's Charles Library.
 
-[Slides to accompany my workshop](https://docs.google.com/presentation/d/1zZ4FVsBcjpZPdGgco8aE0CsfcyuVwuOoBaO6PkX0xXU/edit?usp=sharing)
+[Slides](slides.pdf) (PDF)
+
+[Slides](https://docs.google.com/presentation/d/1zZ4FVsBcjpZPdGgco8aE0CsfcyuVwuOoBaO6PkX0xXU/edit?usp=sharing) (GDrive)
 
 ## Yabasic Resources
 
